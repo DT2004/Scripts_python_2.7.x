@@ -1,0 +1,92 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Feb  6 19:19:13 2014
+
+@author: Nathan
+"""
+from random import randint
+from time import time
+from numpy import zeros
+from numpy.linalg.linalg import det
+from matplotlib import *
+
+def matrice_petite(M, i, j):
+    #Renvoie une matrice privée de la ligne i et de la colonne j
+    list_ligne=[];
+    list_colonne=[];
+    
+    if len(M)==1:
+        return M[0, 0];        
+    else:        
+        Z=zeros((M.shape[0]-1, M.shape[1]-1));        
+        #On determine les lignes, colonnes qui restent
+        for l in range(M.shape[0]):
+            if l!=i:
+                list_ligne.append(l)                
+        for x in range(M.shape[1]):
+            if x!=j:
+                list_colonne.append(x)
+
+        #Traitement:
+        ligne_act=0
+        colonne_act=0
+        for ligne in list_ligne:
+            
+            colonne_act=0
+            for colonne in list_colonne:
+                #print "coordonnees=", ligne, colonne
+                Z[ligne_act, colonne_act]=M[ligne, colonne]
+                colonne_act += 1
+            ligne_act += 1
+        return Z
+      
+def determinant(M):
+    deter=0;
+    a=1
+    if len(M)==1:
+        return M[0,0]
+    #avec len m == 0 return 1
+    for ligne in range(M.shape[0]):
+         deter=deter+(a*M[ligne,0])*(determinant(matrice_petite(M, ligne, 0)))
+         a=a*(-1) 
+    return deter    
+
+def test_determinant(n):
+    tps_depart=time()
+    if n==0:
+        return 0
+    Z=matrice_aleatoire(n)
+    print "\n", "Test base sur une matrice aleatoire n x n (termes entre -100 et +100)" "\n"
+    print "Matrice aleatoire :", "\n", Z, "\n"
+    print "Fait maison :", determinant(Z)
+    print "Pour Numpy  :", det(Z)
+    print "Temps ecoule (s) :", time()-tps_depart
+          
+def matrice_aleatoire(n):    
+    z=zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            z[i, j]=randint(-100, 100)
+    return z
+        
+def progression_det(n_lim):
+    liste_tps=[]
+    liste_diff=[]
+    somme=0
+    for i in range(0, n_lim+1):
+        for test in range(20):
+            somme=somme+test_determinant(i)
+            
+        somme=somme/20;
+        
+        liste_tps.append(somme);
+        liste_diff.append(i)
+    print liste_diff
+    print liste_tps
+    plot(liste_diff, liste_tps)
+
+def test_tps(n_lim, nbr):
+    for i in range(nbr):
+        progression_det(n_lim)
+    
+    
